@@ -1,10 +1,10 @@
 import {createAction, createListenerMiddleware, isAnyOf} from "@reduxjs/toolkit";
-import {ArmInfo} from "../index";
-import {setInitialData} from "../../features/mainSlice";
+import {ArmInfoMsg, CrossesMsg, DevicesMsg, IncomingWebSocketMessage, OutcomingWebSocketMessage} from "../index";
+import {setCrosses, setDevices, setInitialData} from "../../features/mainSlice";
 
 export const wsConnect = createAction<string>("websocket/connect")
-export const wsGetMessage = createAction<any>('websocket/message')
-export const wsSendMessage = createAction<any>('websocket/send')
+export const wsGetMessage = createAction<IncomingWebSocketMessage>('websocket/message')
+export const wsSendMessage = createAction<OutcomingWebSocketMessage>('websocket/send')
 export const WebSocketListenerMiddleware = createListenerMiddleware()
 let ws: WebSocket
 
@@ -22,8 +22,13 @@ WebSocketListenerMiddleware.startListening({
         } else if (wsGetMessage.match(action)) {
             switch (action.payload.type) {
                 case "armInfo":
-                    // listenerApi.dispatch(fillAccountData(action.payload.data as MapInfoMsg))
-                    listenerApi.dispatch(setInitialData(action.payload.data as ArmInfo))
+                    listenerApi.dispatch(setInitialData(action.payload.data as ArmInfoMsg))
+                    break;
+                case "crosses":
+                    listenerApi.dispatch(setCrosses(action.payload.data as CrossesMsg))
+                    break;
+                case "devices":
+                    listenerApi.dispatch(setDevices(action.payload.data as DevicesMsg))
                     break;
                 case "error":
                     break;

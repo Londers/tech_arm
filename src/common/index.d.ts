@@ -1,13 +1,27 @@
-export interface ArmInfoMsg {
-    type: string;
-    data: ArmInfo;
+export interface IncomingWebSocketMessage {
+    type: string
+    data: IncomingDataType
 }
 
-export interface ArmInfo {
+export type IncomingDataType = ArmInfoMsg | CrossesMsg | DevicesMsg
+
+export type OutcomingWebSocketMessage = OutcomingDataType
+
+export type OutcomingDataType = any
+
+export interface ArmInfoMsg {
     crosses: CrossInfo[];
     devices: DeviceInfo[];
     gprs: Gprs | undefined;
     techArmPrivilege: TechArmPrivilege | undefined;
+}
+
+export interface CrossesMsg {
+    crosses: CrossInfo[];
+}
+
+export interface DevicesMsg {
+    devices: DeviceInfo[];
 }
 
 export interface CrossInfo {
