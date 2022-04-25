@@ -1,37 +1,27 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {useAppSelector} from "../app/hooks";
 import {selectCrosses, selectDevices} from "./mainSlice";
-import {DataGrid, GridColDef, GridRenderCellParams, ruRU,} from "@mui/x-data-grid";
-import {CrossInfo, Device, GPS, Model, Error} from "../common";
+import {DataGrid, GridColDef, GridRenderCellParams, GridSelectionModel, ruRU,} from "@mui/x-data-grid";
+import {CrossInfo, Device, TableRow} from "../common";
 import {createTheme, ThemeProvider} from "@mui/material";
 import "./TopTable.sass"
+import {
+    checkError,
+    checkGPS,
+    prettyTraffic,
+    switchArrayType,
+    switchArrayTypeFromDevice,
+    timeFormat
+} from "../common/MessageDecoding";
 
 const theme = createTheme(
     {
         palette: {
-            primary: {main: '#1976d2'},
+            primary: {main: "#1976d2"},
         },
     },
     ruRU,
 );
-
-interface TableRow {
-    id: number
-    // state: boolean
-    area: number
-    subarea: number
-    usdk: number
-    sv: string
-    type: string
-    exTime: string
-    malfDk: string
-    gps: string
-    addData: string
-    traffic: string
-    place: string
-    status: number
-    idevice: number
-}
 
 //Желтое мигание из-за перегорания контролируемых красных ламп
 const columns: GridColDef[] = [
@@ -63,6 +53,18 @@ const columns: GridColDef[] = [
         // headerAlign: "center",
         flex: 0.75,
         // cellClassName: "table-cell",
+        renderCell: (params: GridRenderCellParams<TableRow["sv"]>) => (
+            <div style={{
+                backgroundColor: params.value?.sfdk ? "lightblue" : "",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
+                {params.value?.sv}
+            </div>
+        ),
     },
     {
         field: "type",
@@ -117,117 +119,7 @@ const columns: GridColDef[] = [
     {field: "idevice", hide: true, hideable: false},
 ];
 
-const GPSText = new Map<string, string>([
-    ["Ok", "Исправно"],
-    ["E01", "Нет связи с приемником"],
-    ["E02", "Ошибка CRC"],
-    ["E03", "Нет валидного времени"],
-    ["E04", "Мало спутников"],
-    ["Seek", "Поиск спутников"],
-])
-
-const checkGPS = (GPS: GPS) => {
-    let retValue = '';
-    for (const [key, value] of Object.entries(GPS)) {
-        if (value) retValue += GPSText.get(key) + ', '
-    }
-    return (retValue.length !== 0) ? retValue.substring(0, retValue.length - 2) : '';
-}
-
-// Расшифровка типа устройства
-const switchArrayTypeFromDevice = (model: Model) => {
-    if (model.C12) return 'С12'
-    if (model.DKA) return 'ДКА'
-    if (model.DTA) return 'ДТА'
-    return 'УСДК'
-}
-
-const switchArrayType = (type: number) => {
-    switch (type) {
-        case 1:
-            return 'С12УСДК'
-        case 2:
-            return 'УСДК'
-        case 4:
-            return 'ДКА'
-        case 8:
-            return 'ДТА'
-    }
-    return 'Нет данных'
-}
-
-const timeFormat = (time: Date) => {
-    let date = new Date(time);
-    // date = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
-    const dateTimeFormat = new Intl.DateTimeFormat('ru', {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-    });
-    // console.log(date);
-    return dateTimeFormat.format(date);
-}
-
-const prettyTraffic = (tf: number) => {
-    return (tf / 1024).toFixed(1);
-}
-
-const mErrorText = new Map<number, string>([
-    [0, 'Ошибок в процессе соединения с сервером не было зарегистрировано'],
-    [1, 'Не было обмена или некорректный обмен с модемом'],
-    [2, 'Не удалось зарегистрироваться в GSM-сети за отведенный интервал времени'],
-    [3, 'Не удалось войти в GPRS-канал за отведённый интервал времени'],
-    [4, 'Не было соединения с сервером после нескольких попыток'],
-    [5, 'Sim-карта не была установлена'],
-    [6, 'Не было ответов от сервера при попытке подключения'],
-    [7, 'Не было ответов от сервера при попытке подключения'],
-    [8, 'Сервер разорвал предыдущее соединение'],
-    [9, 'Модем не подчинился сигналу включения/выключения'],
-    [10, 'Не было связи с сервером'],
-    [11, 'Неверная контрольная сумма принимаемого сообщения'],
-    [12, 'Не было подтверждения от сервера на прием информации от УСКД'],
-    [16, 'Внутренняя ошибка модема'],
-    [20, 'Были получены новые параметры обмена с сервера'],
-    [21, 'Таймаут по отсутствию связи с сервером'],
-    [22, 'Было получено СМС с настройками'],
-    [23, 'Произошла перезагрузка по пропаданию и восстановлению сетевого питания'],
-    [24, 'Было обновление программы'],
-    [25, 'Не было данных с сервера в режиме обмена'],
-    [26, 'Произошла суточная перезагрузка'],
-    [27, 'Произошло несанкционированное выключение модема'],
-    [28, 'Был загружен новый IP-адрес сервера по USB'],
-    [29, 'Произошел тайм-аут при установлении соединения'],
-    [50, 'Не было данных от сервера в течение интервала обмена  +1 минута'],
-    [51, 'Был разрыв связи по команде ПСПД'],
-    [52, 'Модем выдал сообщение об ошибке в процессе обмена'],
-])
-
-const ErrorsText = new Map<string, string>([
-    ['V220DK1', '220В ДК1'],
-    ['V220DK2', '220В ДК2'],
-    ['RTC', 'Часы RTC'],
-    ['TVP1', 'ТВП1'],
-    ['TVP2', 'ТВП2'],
-    ['FRAM', 'FRAM'],
-])
-
-const checkMalfunction = (error: Error) => {
-    let retValue = '';
-    for (const [key, value] of Object.entries(error)) {
-        if (value) retValue += ErrorsText.get(key) + ', ';
-    }
-    return (retValue.length !== 0) ? (', неисправности ' + retValue.substring(0, retValue.length - 2)) : '.';
-}
-
-const checkError = (device: Device) => {
-    const err = mErrorText.get(device.Status.elc)
-    return (err ? err : ('Неизвестный код неисправности ' + device.Status.elc)) + checkMalfunction(device.Error)
-}
-
-function TopTable() {
+function TopTable(props: { setSelected: Function }) {
     const crosses = useAppSelector(selectCrosses)
     const devices = useAppSelector(selectDevices)
 
@@ -238,13 +130,17 @@ function TopTable() {
             area: cross.area,
             subarea: cross.subarea,
             usdk: cross.id,
-            sv: device ? (device.scon ? (device.Status.ethernet ? 'L' : '+') : '') : '',
+            sv: device ? {
+                    sv: (device.scon ? (device.Status.ethernet ? "L" : "+") : ""),
+                    sfdk: device.StatusCommandDU.IsReqSFDK1
+                } :
+                {sv: "", sfdk: false},
             type: device ? switchArrayTypeFromDevice(device.Model) : switchArrayType(cross.arrayType),
             exTime: device ? timeFormat(device.ltime) : "",
             malfDk: cross.status,
             gps: device ? checkGPS(device.GPS) : "",
             addData: device ? checkError(device) : "",
-            traffic: device ? prettyTraffic(device.Traffic.FromDevice1Hour) + '/' + prettyTraffic(device.Traffic.LastFromDevice1Hour) : '',
+            traffic: device ? prettyTraffic(device.Traffic.FromDevice1Hour) + "/" + prettyTraffic(device.Traffic.LastFromDevice1Hour) : "",
             place: cross.describe,
             status: cross.statuscode,
             idevice: cross.idevice
@@ -266,14 +162,9 @@ function TopTable() {
         setRows(generateData())
     }, [generateData])
 
-
-    // crosses.forEach(cross => {
-    //     const device = devices.find(dev => dev.device.id === cross.idevice)
-    //     setRows(rows.map(row => {
-    //         if (row.idevice === cross.idevice) return convertToRow(cross, device);
-    //         return row;
-    //     }))
-    // })
+    const handleCrossSelect = (selected: GridSelectionModel) => {
+        props.setSelected(rows[Number(selected[0])].idevice)
+    }
 
     return (
         <div style={{height: "50vh", width: "100%"}}>
@@ -281,7 +172,9 @@ function TopTable() {
                 <DataGrid
                     hideFooter
                     rows={rows}
-                    columns={columns}/>
+                    columns={columns}
+                    onSelectionModelChange={handleCrossSelect}
+                />
             </ThemeProvider>
         </div>
     )

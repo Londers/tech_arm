@@ -1,12 +1,13 @@
-import {ArmInfoMsg, CrossesMsg, CrossInfo, DevicesMsg} from "../common";
+import {ArmInfoMsg, CrossesMsg, CrossInfo, DevicesMsg, MainSliceType} from "../common";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../app/store";
 
-const initialState: ArmInfoMsg = {
+const initialState: MainSliceType = {
     crosses: [],
     devices: [],
     gprs: undefined,
-    techArmPrivilege: undefined
+    techArmPrivilege: undefined,
+    selectedIdevice: -1,
 }
 
 const crossesSort = (a: CrossInfo, b: CrossInfo) =>
@@ -32,13 +33,17 @@ export const mainSlice = createSlice({
                 state.devices.splice(index, 1, newDev)
             })
         },
+        setSelectedIdevice: (state, action: PayloadAction<number>) => {
+            state.selectedIdevice = action.payload
+        },
     }
 })
 
-export const {setInitialData, setCrosses, setDevices} = mainSlice.actions
+export const {setInitialData, setCrosses, setDevices, setSelectedIdevice} = mainSlice.actions
 
 export const selectCrosses = (state: RootState) => state.main.crosses
 export const selectDevices = (state: RootState) => state.main.devices
+export const selectSelectedIdevice = (state: RootState) => state.main.selectedIdevice
 export const selectGPRS = (state: RootState) => state.main.gprs
 export const selectTechArmAccess = (state: RootState) => state.main.techArmPrivilege ? state.main.techArmPrivilege[4] : false
 

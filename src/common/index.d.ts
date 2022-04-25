@@ -9,6 +9,14 @@ export type OutcomingWebSocketMessage = OutcomingDataType
 
 export type OutcomingDataType = any
 
+export interface MainSliceType {
+    crosses: CrossInfo[];
+    devices: DeviceInfo[];
+    gprs: Gprs | undefined;
+    techArmPrivilege: TechArmPrivilege | undefined;
+    selectedIdevice: number;
+}
+
 export interface ArmInfoMsg {
     crosses: CrossInfo[];
     devices: DeviceInfo[];
@@ -182,4 +190,22 @@ export interface Traffic {
     ToDevice1Hour: number;
     LastToDevice1Hour: number;
     LastFromDevice1Hour: number;
+}
+
+export interface TableRow {
+    id: number
+    // state: boolean
+    area: number
+    subarea: number
+    usdk: number
+    sv: { sv: string, sfdk: boolean }
+    type: string
+    exTime: string
+    malfDk: string
+    gps: string
+    addData: string
+    traffic: string
+    place: string
+    status: number
+    idevice: number
 }
