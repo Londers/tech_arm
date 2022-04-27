@@ -9,14 +9,6 @@ export type OutcomingWebSocketMessage = OutcomingDataType
 
 export type OutcomingDataType = any
 
-export interface MainSliceType {
-    crosses: CrossInfo[];
-    devices: DeviceInfo[];
-    gprs: Gprs | undefined;
-    techArmPrivilege: TechArmPrivilege | undefined;
-    selectedIdevice: number;
-}
-
 export interface ArmInfoMsg {
     crosses: CrossInfo[];
     devices: DeviceInfo[];

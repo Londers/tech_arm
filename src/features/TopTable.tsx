@@ -105,7 +105,7 @@ const columns: GridColDef[] = [
         field: "traffic",
         headerName: "Трафик",
         // headerAlign: "center",
-        flex: 1.5,
+        flex: 1.75,
         // cellClassName: "table-cell",
     },
     {
@@ -167,7 +167,7 @@ function TopTable(props: { setSelected: Function }) {
     }
 
     return (
-        <div style={{height: "50vh", width: "100%"}}>
+        <div style={{height: "60vh", width: "100%"}}>
             <ThemeProvider theme={theme}>
                 <DataGrid
                     hideFooter

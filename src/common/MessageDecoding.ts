@@ -1,4 +1,4 @@
-import {Device, Error, Model, GPS} from "./index";
+import {Device, Error, Model, GPS, Input} from "./index";
 
 const GPSText = new Map<string, string>([
     ["Ok", "Исправно"],
@@ -128,4 +128,22 @@ export const phaseSpellOut = (phase: number) => {
         default:
             return phase
     }
+}
+
+export const decodeInputErrors = (input: Input) => {
+    const inputs: number[] = []
+    const statistics: number[] = []
+
+    Object.entries(input).forEach((entry: [string, boolean | boolean[]], index) => {
+        const [, value] = entry
+        if (typeof value === "boolean") {
+            if (value) inputs.push(index + 1)
+        } else {
+            value.forEach((st: boolean, stIndex: number) => {
+                if (st) statistics.push(stIndex + 1)
+            })
+        }
+    })
+    if (inputs.length === 0 && statistics.length === 0) return "отсутствует"
+    return "вх. " + inputs.join(", ") + ", ст. " + statistics.join(", ")
 }
