@@ -102,12 +102,16 @@ export const checkMalfunction = (error: Error) => {
     for (const [key, value] of Object.entries(error)) {
         if (value) retValue += ErrorsText.get(key) + ", ";
     }
-    return (retValue.length !== 0) ? (", неисправности " + retValue.substring(0, retValue.length - 2)) : ".";
+    return (retValue.length !== 0) ? ("неисправности " + retValue.substring(0, retValue.length - 2)) : ".";
 }
 
-export const checkError = (device: Device) => {
+export const checkError = (device: Device, malfunction: boolean) => {
     const err = mErrorText.get(device.Status.elc)
-    return (err ? err : ("Неизвестный код неисправности " + device.Status.elc)) + checkMalfunction(device.Error)
+    if (malfunction) {
+        return (err ? err : ("Неизвестный код неисправности " + device.Status.elc)) + ", " + checkMalfunction(device.Error)
+    } else {
+        return (err ? err : ("Неизвестный код неисправности " + device.Status.elc))
+    }
 }
 
 // Расшифровка фазы

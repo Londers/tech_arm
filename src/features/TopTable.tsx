@@ -139,7 +139,7 @@ function TopTable(props: { setSelected: Function }) {
             exTime: device ? timeFormat(device.ltime) : "",
             malfDk: cross.status,
             gps: device ? checkGPS(device.GPS) : "",
-            addData: device ? checkError(device) : "",
+            addData: device ? checkError(device, true) : "",
             traffic: device ? prettyTraffic(device.Traffic.FromDevice1Hour) + "/" + prettyTraffic(device.Traffic.LastFromDevice1Hour) : "",
             place: cross.describe,
             status: cross.statuscode,

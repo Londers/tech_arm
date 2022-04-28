@@ -18,7 +18,7 @@ function App() {
     }, [dispatch])
 
     return (
-        <div className="App" style={{height: window.innerHeight}}>
+        <div className="App" style={{height: "100%"}}>
             <TopTable setSelected={setSelectedCross}/>
             <Bottom selected={selectedCross}/>
         </div>
