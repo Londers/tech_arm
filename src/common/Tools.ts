@@ -1,4 +1,6 @@
-import {Device, Error, Model, GPS, Input} from "./index";
+import {Device, Error, Model, GPS, Input, CrossInfo} from "./index";
+
+export const maxTimeDifference = 1000 * 60
 
 const GPSText = new Map<string, string>([
     ["Ok", "Исправно"],
@@ -39,7 +41,7 @@ export const switchArrayType = (type: number) => {
     return "Нет данных"
 }
 
-export const timeFormat = (time: Date) => {
+export const timeFormat = (time: string) => {
     let date = new Date(time);
     // date = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
     const dateTimeFormat = new Intl.DateTimeFormat("ru", {
@@ -52,6 +54,22 @@ export const timeFormat = (time: Date) => {
     });
     // console.log(date);
     return dateTimeFormat.format(date);
+}
+
+export const checkTimeDiff = (device: Device | undefined) => {
+    if (device) {
+        return (Math.abs(new Date(device.ltime).getTime() - new Date(device.dtime).getTime()) > maxTimeDifference)
+    }
+    return false
+}
+
+export const checkVersionDifference = (cross: CrossInfo, device: Device | undefined) => {
+    if (device) {
+        const deviceVer = parseFloat(device.Model.vpcpdl + '.' + device.Model.vpcpdr);
+        const crossVer = parseFloat(cross.Model.vpcpdl + '.' + cross.Model.vpcpdr);
+        return !(((deviceVer <= 12.3) && (crossVer <= 12.3)) || ((deviceVer >= 12.4) && (crossVer >= 12.4)))
+    }
+    return false
 }
 
 export const prettyTraffic = (tf: number) => {
@@ -150,4 +168,8 @@ export const decodeInputErrors = (input: Input) => {
     })
     if (inputs.length === 0 && statistics.length === 0) return "отсутствует"
     return "вх. " + inputs.join(", ") + ", ст. " + statistics.join(", ")
+}
+
+export const openTab = (path: string) => {
+    window.open(window.location.origin + "/user/" + localStorage.getItem("login") + path)
 }

@@ -7,12 +7,12 @@ import {createTheme, ThemeProvider} from "@mui/material";
 import "./TopTable.sass"
 import {
     checkError,
-    checkGPS,
+    checkGPS, checkTimeDiff, maxTimeDifference,
     prettyTraffic,
     switchArrayType,
     switchArrayTypeFromDevice,
     timeFormat
-} from "../common/MessageDecoding";
+} from "../common/Tools";
 
 const theme = createTheme(
     {
@@ -72,6 +72,18 @@ const columns: GridColDef[] = [
         // headerAlign: "center",
         flex: 1,
         // cellClassName: "table-cell",
+        renderCell: (params: GridRenderCellParams<TableRow["type"]>) => (
+            <div style={{
+                backgroundColor: params.value?.error ? "red" : "",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
+                {params.value?.type}
+            </div>
+        ),
     },
     {
         field: "exTime",
@@ -79,6 +91,18 @@ const columns: GridColDef[] = [
         // headerAlign: "center",
         flex: 2.25,
         // cellClassName: "table-cell",
+        renderCell: (params: GridRenderCellParams<TableRow["exTime"]>) => (
+            <div style={{
+                backgroundColor: params.value?.error ? "red" : "",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
+                {params.value?.time}
+            </div>
+        ),
     },
     {
         field: "malfDk",
@@ -135,8 +159,21 @@ function TopTable(props: { setSelected: Function }) {
                     sfdk: device.StatusCommandDU.IsReqSFDK1
                 } :
                 {sv: "", sfdk: false},
-            type: device ? switchArrayTypeFromDevice(device.Model) : switchArrayType(cross.arrayType),
-            exTime: device ? timeFormat(device.ltime) : "",
+            type: device ?
+                {
+                    type: switchArrayTypeFromDevice(device.Model),
+                    error: switchArrayTypeFromDevice(device.Model) !== switchArrayType(cross.arrayType)
+                } :
+                {
+                    type: switchArrayType(cross.arrayType),
+                    error: false
+                },
+            exTime: device ?
+                {
+                    time: timeFormat(device.ltime),
+                    error: checkTimeDiff(device)
+                } :
+                {time: "", error: false},
             malfDk: cross.status,
             gps: device ? checkGPS(device.GPS) : "",
             addData: device ? checkError(device, true) : "",

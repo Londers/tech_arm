@@ -1,17 +1,19 @@
-import React from "react";
+import React, {Fragment, useState} from "react";
 import {Box, Button, Grid} from "@mui/material";
-import {useAppSelector} from "../app/hooks";
+import {useAppDispatch, useAppSelector} from "../app/hooks";
 import {selectCrosses, selectCrossesCount, selectDevices, selectDevicesCount} from "./mainSlice";
 import {
     checkError,
-    checkMalfunction,
-    decodeInputErrors,
+    checkMalfunction, checkTimeDiff, checkVersionDifference,
+    decodeInputErrors, openTab,
     phaseSpellOut,
     switchArrayType,
     switchArrayTypeFromDevice,
     timeFormat
-} from "../common/MessageDecoding";
+} from "../common/Tools";
 import "./Bottom.sass"
+import {wsSendMessage} from "../common/Middlewares/WebSocketMiddleware";
+import GPRSDialog from "../common/GPRSDialog";
 
 function Bottom(props: { selected: number }) {
     const cross = useAppSelector(selectCrosses).find(cross => cross.idevice === props.selected)
@@ -19,6 +21,32 @@ function Bottom(props: { selected: number }) {
     const device = deviceInfo?.device
     const crossesCount = useAppSelector(selectCrossesCount)
     const devicesCount = useAppSelector(selectDevicesCount)
+
+    const dispatch = useAppDispatch()
+
+    const [openGPRS, setOpenGPRS] = useState<boolean>(false)
+
+    const handleCrossClick = () => {
+        if (cross) {
+            const searchStr = 'Region=' + cross.region + '&Area=' + cross.area + '&ID=' + cross.id
+            openTab("/cross?" + searchStr)
+        }
+    }
+
+    const handleCrossControlClick = () => {
+        if (cross) {
+            const searchStr = 'Region=' + cross.region + '&Area=' + cross.area + '&ID=' + cross.id
+            openTab("/cross/control?" + searchStr)
+        }
+    }
+
+    const handleSfdkSwitch = () => {
+        dispatch(wsSendMessage(
+            JSON.stringify(
+                {type: "dispatch", id: cross?.idevice, cmd: 4, param: device?.StatusCommandDU.IsReqSFDK1 ? 0 : 1}
+            )
+        ))
+    }
 
     return (
         <>
@@ -31,25 +59,33 @@ function Bottom(props: { selected: number }) {
                         alignItems="center"
                         columns={20}
                         style={{height: "calc(5vh)"}}>
-                        <Grid item xs={.6} className="test">
-                            {device ? switchArrayTypeFromDevice(device.Model) : switchArrayType(cross.arrayType)}
+                        <Grid item xs={.62} className="test">
+                            <div style={{
+                                marginRight: "calc(1.5vw - 5px)",
+                                backgroundColor:
+                                    device ?
+                                        (switchArrayType(cross.arrayType) === switchArrayTypeFromDevice(device.Model) ? "" : "red") :
+                                        ""
+                            }}>
+                                {switchArrayType(cross.arrayType)}
+                            </div>
                         </Grid>
                         <Grid item xs={.6}>
                             {cross.id}
                         </Grid>
-                        <Grid item xs={.8}>
+                        <Grid item xs={.83}>
                             {device ? (device.Status.ethernet ? "LAN" : "G") : ""}
                         </Grid>
                         <Grid item xs className="test">
                             {cross.describe}
                         </Grid>
                         <Grid item xs={2}>
-                            <Button variant="outlined" onClick={e => console.log(e)}>
+                            <Button variant="outlined" onClick={handleCrossClick}>
                                 ДК {cross.id}
                             </Button>
                         </Grid>
                         <Grid item xs={2}>
-                            <Button variant="outlined" onClick={e => console.log(e)}>
+                            <Button variant="outlined" onClick={handleCrossControlClick}>
                                 Привязка
                             </Button>
                         </Grid>
@@ -70,8 +106,13 @@ function Bottom(props: { selected: number }) {
                                 <div style={{width: "30%"}}>Подр</div>
                                 <div style={{width: "30%", textAlign: "center"}}>{cross.subarea}</div>
                             </Grid>
-                            <Grid item xs className="test" style={{display: "inherit"}}>
-                                {device ? timeFormat(device.dtime) : ""}
+                            <Grid item xs
+                                  className="test"
+                                  style={{display: "inherit"}}
+                            >
+                                <div style={{backgroundColor: checkTimeDiff(device) ? "red" : ""}}>
+                                    {device ? timeFormat(device.dtime) : ""}
+                                </div>
                             </Grid>
                             <Grid item xs className="test" style={{display: "inherit"}}>
                                 {device ? timeFormat(device.ltime) : ""}
@@ -82,12 +123,13 @@ function Bottom(props: { selected: number }) {
                                 </Button>
                             </Grid>
                             <Grid item xs={2} className="test" style={{display: "inherit"}}>
-                                <Button variant="outlined" style={{width: "70%"}} onClick={e => console.log(e)}>
+                                <Button variant="outlined" style={{width: "70%"}} onClick={() => setOpenGPRS(!openGPRS)}>
                                     GPRS-обмен
                                 </Button>
+                                <GPRSDialog open={openGPRS} setOpen={setOpenGPRS} />
                             </Grid>
                             <Grid item xs={2} className="test" style={{display: "inherit"}}>
-                                <Button variant="outlined" style={{width: "70%"}} onClick={e => console.log(e)}>
+                                <Button variant="outlined" style={{width: "70%"}} onClick={handleSfdkSwitch}>
                                     {device?.StatusCommandDU.IsReqSFDK1 ? "Выкл. СФ" : "Вкл. СФ"}
                                 </Button>
                             </Grid>
@@ -173,7 +215,8 @@ function Bottom(props: { selected: number }) {
                                 </Grid>
                                 <Grid item xs style={{display: "inherit"}} className="test">
                                     <div style={{width: "25%"}}>Уст-во</div>
-                                    <div style={{width: "75%"}}>{device ? switchArrayTypeFromDevice(device.Model) : "-"}</div>
+                                    <div
+                                        style={{width: "75%"}}>{device ? switchArrayTypeFromDevice(device.Model) : "-"}</div>
                                 </Grid>
                                 <Grid item xs style={{display: "inherit"}} className="test">
                                     <div style={{width: "25%"}}>Состояние</div>
@@ -214,7 +257,8 @@ function Bottom(props: { selected: number }) {
                             </Grid>
                             <Grid item xs style={{display: "inherit"}} className="test">
                                 <div style={{width: "30%"}}>IP: {device?.ip}</div>
-                                <div style={{width: "70%"}}>{device ? "Ошибка " + decodeInputErrors(device.Input) : ""}</div>
+                                <div
+                                    style={{width: "70%"}}>{device ? "Ошибка " + decodeInputErrors(device.Input) : ""}</div>
                             </Grid>
                             <Grid item xs={6}
                                   container
@@ -230,7 +274,14 @@ function Bottom(props: { selected: number }) {
                                         Дополнение
                                     </Grid>
                                     <Grid item xs className="test">
-                                        ПО ПСПД {device ? device.Model.vpcpdl + '.' + device.Model.vpcpdr : "-"}
+                                        ПО ПСПД
+                                        <div style={{
+                                            display: "inline-flex",
+                                            backgroundColor: checkVersionDifference(cross, device) ? "red" : "",
+                                            marginLeft: "5px"
+                                        }}>
+                                            {device ? device.Model.vpcpdl + '.' + device.Model.vpcpdr : "-"}
+                                        </div>
                                     </Grid>
                                     <Grid item xs className="test">
                                         ПО ПБС {device ? device.Model.vpbsl + '.' + device.Model.vpbsr : "-"}

@@ -54,6 +54,12 @@ export interface Gprs {
     send: boolean;
 }
 
+export interface GprsChange {
+    ip?: string;
+    port?: string;
+    send?: boolean;
+}
+
 export interface TechArmPrivilege {
     4: boolean;
 }
@@ -62,8 +68,8 @@ export interface Device {
     id: number;
     name: string;
     scon: boolean;
-    ltime: Date;
-    dtime: Date;
+    ltime: string;
+    dtime: string;
     techmode: number;
     base: boolean;
     pk: number;
@@ -130,7 +136,6 @@ export interface Error {
 }
 
 
-
 export interface GPS {
     Ok: boolean;
     E01: boolean;
@@ -191,8 +196,8 @@ export interface TableRow {
     subarea: number
     usdk: number
     sv: { sv: string, sfdk: boolean }
-    type: string
-    exTime: string
+    type: { type: string, error: boolean }
+    exTime: { time: string, error: boolean }
     malfDk: string
     gps: string
     addData: string
