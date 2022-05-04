@@ -6,6 +6,7 @@ const initialState: ArmInfoMsg = {
     crosses: [],
     devices: [],
     gprs: undefined,
+
     techArmPrivilege: undefined,
 }
 
@@ -32,18 +33,19 @@ export const mainSlice = createSlice({
                 state.devices.splice(index, 1, newDev)
             })
         },
-        setGPRS: (state, action: PayloadAction<GprsChange>) => {
-            if (state.gprs) {
-                if (action.payload.ip) {
-                    state.gprs.ip = action.payload.ip
-                }
-                if (action.payload.port) {
-                    state.gprs.port = action.payload.port
-                }
-                if (action.payload.send !== undefined) {
-                    state.gprs.send = action.payload.send
-                }
-            }
+        setGPRS: (state, action: PayloadAction<Gprs>) => {
+            // if (state.gprs) {
+                // if (action.payload.ip) {
+                // state.gprs.ip = action.payload.ip
+                // }
+                // if (action.payload.port) {
+                // state.gprs.port = action.payload.port.toString()
+                // }
+                // if (action.payload.send !== undefined) {
+                // state.gprs.send = action.payload.send
+                // }
+            // }
+            state.gprs = action.payload
         }
     }
 })

@@ -41,10 +41,8 @@ function Bottom(props: { selected: number }) {
     }
 
     const handleSfdkSwitch = () => {
-        dispatch(wsSendMessage(
-            JSON.stringify(
-                {type: "dispatch", id: cross?.idevice, cmd: 4, param: device?.StatusCommandDU.IsReqSFDK1 ? 0 : 1}
-            )
+        if (cross) dispatch(wsSendMessage(
+            {type: "dispatch", id: cross.idevice, cmd: 4, param: device?.StatusCommandDU.IsReqSFDK1 ? 0 : 1}
         ))
     }
 
@@ -123,10 +121,11 @@ function Bottom(props: { selected: number }) {
                                 </Button>
                             </Grid>
                             <Grid item xs={2} className="test" style={{display: "inherit"}}>
-                                <Button variant="outlined" style={{width: "70%"}} onClick={() => setOpenGPRS(!openGPRS)}>
+                                <Button variant="outlined" style={{width: "70%"}}
+                                        onClick={() => setOpenGPRS(!openGPRS)}>
                                     GPRS-обмен
                                 </Button>
-                                <GPRSDialog open={openGPRS} setOpen={setOpenGPRS} />
+                                {device && <GPRSDialog open={openGPRS} setOpen={setOpenGPRS} device={device}/>}
                             </Grid>
                             <Grid item xs={2} className="test" style={{display: "inherit"}}>
                                 <Button variant="outlined" style={{width: "70%"}} onClick={handleSfdkSwitch}>

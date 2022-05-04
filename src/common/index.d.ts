@@ -7,7 +7,7 @@ export type IncomingDataType = ArmInfoMsg | CrossesMsg | DevicesMsg
 
 export type OutcomingWebSocketMessage = OutcomingDataType
 
-export type OutcomingDataType = any
+export type OutcomingDataType = GprsChangeMessage | SfdkChangeMessage
 
 export interface ArmInfoMsg {
     crosses: CrossInfo[];
@@ -55,9 +55,26 @@ export interface Gprs {
 }
 
 export interface GprsChange {
-    ip?: string;
-    port?: string;
-    send?: boolean;
+    id: number
+    f0x32: boolean
+    f0x33: boolean
+    f0x34: boolean
+    ip: string
+    port: number
+    long: number
+    type: boolean
+}
+
+export interface GprsChangeMessage {
+    type: string
+    gprs: GprsChange
+}
+
+export interface SfdkChangeMessage {
+    type: string
+    id: number
+    cmd: number
+    param: number
 }
 
 export interface TechArmPrivilege {

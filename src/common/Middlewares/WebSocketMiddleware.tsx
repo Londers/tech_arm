@@ -18,7 +18,7 @@ WebSocketListenerMiddleware.startListening({
             ws.onclose = (e) => console.log("closed", e)
             ws.onmessage = (e) => listenerApi.dispatch(wsGetMessage(JSON.parse(e.data)))
         } else if (wsSendMessage.match(action)) {
-            ws.send(JSON.stringify(action.payload as any))
+            ws.send(JSON.stringify(action.payload as OutcomingWebSocketMessage))
         } else if (wsGetMessage.match(action)) {
             switch (action.payload.type) {
                 case "armInfo":
