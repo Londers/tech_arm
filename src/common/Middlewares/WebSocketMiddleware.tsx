@@ -1,6 +1,13 @@
 import {createAction, createListenerMiddleware, isAnyOf} from "@reduxjs/toolkit";
-import {ArmInfoMsg, CrossesMsg, DevicesMsg, IncomingWebSocketMessage, OutcomingWebSocketMessage} from "../index";
-import {setCrosses, setDevices, setInitialData} from "../../features/mainSlice";
+import {
+    ArmInfoMsg,
+    CrossesMsg,
+    DevicesMsg,
+    GprsMsg,
+    IncomingWebSocketMessage,
+    OutcomingWebSocketMessage
+} from "../index";
+import {setCrosses, setDevices, setInitialData, setNewGPRS} from "../../features/mainSlice";
 
 export const wsConnect = createAction<string>("websocket/connect")
 export const wsGetMessage = createAction<IncomingWebSocketMessage>('websocket/message')
@@ -29,6 +36,9 @@ WebSocketListenerMiddleware.startListening({
                     break;
                 case "devices":
                     listenerApi.dispatch(setDevices(action.payload.data as DevicesMsg))
+                    break;
+                case "gprs":
+                    listenerApi.dispatch(setNewGPRS(action.payload.data as GprsMsg))
                     break;
                 case "error":
                     break;

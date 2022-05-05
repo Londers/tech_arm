@@ -3,7 +3,7 @@ export interface IncomingWebSocketMessage {
     data: IncomingDataType
 }
 
-export type IncomingDataType = ArmInfoMsg | CrossesMsg | DevicesMsg
+export type IncomingDataType = ArmInfoMsg | CrossesMsg | DevicesMsg | GprsMsg
 
 export type OutcomingWebSocketMessage = OutcomingDataType
 
@@ -13,6 +13,7 @@ export interface ArmInfoMsg {
     crosses: CrossInfo[];
     devices: DeviceInfo[];
     gprs: Gprs | undefined;
+    newGprs: Gprs | undefined;
     techArmPrivilege: TechArmPrivilege | undefined;
 }
 
@@ -68,6 +69,10 @@ export interface GprsChange {
 export interface GprsChangeMessage {
     type: string
     gprs: GprsChange
+}
+
+export interface GprsMsg {
+    status: boolean
 }
 
 export interface SfdkChangeMessage {

@@ -1,4 +1,4 @@
-import {ArmInfoMsg, CrossesMsg, CrossInfo, DevicesMsg, Gprs, GprsChange} from "../common";
+import {ArmInfoMsg, CrossesMsg, CrossInfo, DevicesMsg, Gprs, GprsChange, GprsMsg} from "../common";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../app/store";
 
@@ -6,7 +6,7 @@ const initialState: ArmInfoMsg = {
     crosses: [],
     devices: [],
     gprs: undefined,
-
+    newGprs: undefined,
     techArmPrivilege: undefined,
 }
 
@@ -46,11 +46,18 @@ export const mainSlice = createSlice({
                 // }
             // }
             state.gprs = action.payload
+        },
+        setNewGPRS: (state, action: PayloadAction<GprsMsg>) => {
+            if (action.payload.status) {
+                state.gprs = state.newGprs
+            } else {
+                state.newGprs = state.gprs
+            }
         }
     }
 })
 
-export const {setInitialData, setCrosses, setDevices, setGPRS} = mainSlice.actions
+export const {setInitialData, setCrosses, setDevices, setGPRS, setNewGPRS} = mainSlice.actions
 
 export const selectCrosses = (state: RootState) => state.main.crosses
 export const selectCrossesCount = (state: RootState) => state.main.crosses.length

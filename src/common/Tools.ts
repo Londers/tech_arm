@@ -1,4 +1,4 @@
-import {Device, Error, Model, GPS, Input, CrossInfo} from "./index";
+import {Device, Error, Model, GPS, Input, CrossInfo, TableRow, DeviceInfo} from "./index";
 
 export const maxTimeDifference = 1000 * 60
 
@@ -120,7 +120,7 @@ export const checkMalfunction = (error: Error) => {
     for (const [key, value] of Object.entries(error)) {
         if (value) retValue += ErrorsText.get(key) + ", ";
     }
-    return (retValue.length !== 0) ? ("неисправности " + retValue.substring(0, retValue.length - 2)) : ".";
+    return (retValue.length !== 0) ? ("неисправности " + retValue.substring(0, retValue.length - 2)) : "";
 }
 
 export const checkError = (device: Device, malfunction: boolean) => {
@@ -172,4 +172,37 @@ export const decodeInputErrors = (input: Input) => {
 
 export const openTab = (path: string) => {
     window.open(window.location.origin + "/user/" + localStorage.getItem("login") + path)
+}
+
+// Фильтрация таблицы
+export const filterTable = (devices: DeviceInfo[], tableRows: TableRow[], filter: number) => {
+    switch (filter) {
+        case 0:
+            // Без фильтров
+            return tableRows;
+        case 1:
+            // Аварии 220, Выключенные УСДК
+            return tableRows.filter(row => (row.status === 17 || row.status === 18));
+        case 2:
+            // Неисправности
+            return tableRows.filter(row => row.status >= 16);
+        case 3:
+            // Неисправности GPS
+            return tableRows.filter(row => (row.gps !== "") && (row.gps !== "Исправно"));
+        case 4:
+            // Отсутствие связи
+            return tableRows.filter(row => row.sv.sv === "")
+        case 5:
+            // Управление из центра
+            return tableRows.filter(row => row.traffic !== "").filter(row =>
+                Object.values(devices.find(dev => dev.device.id === row.idevice)?.device.StatusCommandDU ?? {}).some(value => value)
+            );
+        case 6:
+            // Наличие связи
+            return tableRows.filter(row => row.sv.sv !== "")
+        case 7:
+            // Включена смена фаз
+            return tableRows.filter(row => (devices.find(dev => (dev.device.id === row.idevice))?.device.StatusCommandDU.IsReqSFDK1)
+            )
+    }
 }
