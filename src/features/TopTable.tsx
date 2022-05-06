@@ -26,117 +26,100 @@ const theme = createTheme(
 );
 
 const columns: GridColDef[] = [
-    // {field: "state", headerName: "", width: 50},
     {
         field: "area",
         headerName: "Район",
-        // headerAlign: "center",
-        flex: 1,
-        // cellClassName: "table-cell",
+        flex: 1.6,
     },
     {
         field: "subarea",
         headerName: "Подрайон",
-        // headerAlign: "center",
-        flex: 1.5,
-        // cellClassName: "table-cell",
+        flex: 2,
     },
     {
         field: "usdk",
         headerName: "УСДК",
-        // headerAlign: "center",
-        flex: 1,
-        // cellClassName: "table-cell",
+        flex: 1.55,
     },
     {
         field: "sv",
         headerName: "Св",
-        // headerAlign: "center",
-        flex: 0.75,
-        // cellClassName: "table-cell",
+        flex: 1.25,
+        valueGetter: ((params: GridRenderCellParams<TableRow["sv"]>) => params.value?.sv),
         renderCell: (params: GridRenderCellParams<TableRow["sv"]>) => (
             <div style={{
-                backgroundColor: params.value?.sfdk ? "lightblue" : "",
+                backgroundColor: params.row.sv?.sfdk ? "lightblue" : "",
                 width: "100%",
                 height: "100%",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
             }}>
-                {params.value?.sv}
+                {params.value}
             </div>
         ),
     },
     {
         field: "type",
         headerName: "Тип",
-        // headerAlign: "center",
-        flex: 1,
-        // cellClassName: "table-cell",
+        flex: 1.35,
+        valueGetter: ((params: GridRenderCellParams<TableRow["type"]>) => params.value?.type),
         renderCell: (params: GridRenderCellParams<TableRow["type"]>) => (
             <div style={{
-                backgroundColor: params.value?.error ? "red" : "",
+                backgroundColor: params.row.type?.error ? "red" : "",
                 width: "100%",
                 height: "100%",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
             }}>
-                {params.value?.type}
+                {params.value}
             </div>
         ),
     },
     {
         field: "exTime",
         headerName: "Время обмена",
-        // headerAlign: "center",
-        flex: 2.25,
-        // cellClassName: "table-cell",
+        flex: 2.5,
+        valueGetter: ((params: GridRenderCellParams<TableRow["exTime"]>) => params.value?.time),
         renderCell: (params: GridRenderCellParams<TableRow["exTime"]>) => (
             <div style={{
-                backgroundColor: params.value?.error ? "red" : "",
+                backgroundColor: params.row.exTime?.error ? "red" : "",
                 width: "100%",
                 height: "100%",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
             }}>
-                {params.value?.time}
+                {params.value}
             </div>
         ),
     },
     {
         field: "malfDk",
         headerName: "Состояние ДК",
-        // headerAlign: "center",
         flex: 3,
         cellClassName: "table-cell-wrap",
     },
     {
         field: "gps",
         headerName: "GPS",
-        // headerAlign: "center",
         flex: 2.75,
-        // cellClassName: "table-cell",
     },
     {
         field: "addData",
         headerName: "Доп. данные",
-        // headerAlign: "center",
         flex: 5,
         cellClassName: "table-cell-wrap",
     },
     {
         field: "traffic",
         headerName: "Трафик",
-        // headerAlign: "center",
         flex: 1.75,
-        // cellClassName: "table-cell",
     },
     {
         field: "place",
         headerName: "Место размещения",
-        // headerAlign: "center",
         flex: 5,
         cellClassName: "table-cell-wrap",
     },
@@ -151,7 +134,6 @@ function TopTable(props: { setSelected: Function }) {
     const convertToRow = (id: number, cross: CrossInfo, device: Device | undefined): TableRow => {
         return {
             id,
-            // state: id === 1,
             area: cross.area,
             subarea: cross.subarea,
             usdk: cross.id,
@@ -214,11 +196,15 @@ function TopTable(props: { setSelected: Function }) {
         const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
         const filteredRows = rows.filter((row: any) => {
             return Object.keys(row).some((field: any) => {
-                return searchRegex.test(row[field].toString())
+                if (typeof row[field] === "object") {
+                    return searchRegex.test(Object.values(row[field]).find(value => typeof value === "string") as string)
+                } else {
+                    return searchRegex.test(row[field].toString())
+                }
             })
         })
         setFilteredRows(filteredRows)
-        if (filteredRows.length > 0) handleCrossSelect([filteredRows[selection]?.id ?? 0])
+        if (filteredRows.length > 0) handleCrossSelect([filteredRows.find(row => row.id === selection)?.id ?? filteredRows[0]?.id])
     }, [rows])
 
     useEffect(() => {
@@ -233,7 +219,7 @@ function TopTable(props: { setSelected: Function }) {
         const newFilter = Number(event.target.value)
         setFilter(newFilter)
         setRows(filterTable(devices, rows, newFilter) ?? [])
-        if (filteredRows.length > 0) handleCrossSelect([filteredRows[selection]?.id ?? 0])
+        if (filteredRows.length > 0) handleCrossSelect([filteredRows.find(row => row.id === selection)?.id ?? filteredRows[0]?.id])
     }
 
     return (

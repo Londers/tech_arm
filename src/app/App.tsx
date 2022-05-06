@@ -13,7 +13,7 @@ function App() {
         if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
             dispatch(wsConnect("wss://192.168.115.134:4443/user/Admin/techArmW?Region=1&Area=1&Area=2&Area=3"))
         } else {
-            // dispatch(wsConnect(`wss://${window.location.host}/mapW`))
+            dispatch(wsConnect(`wss://${window.location.host}/user/${localStorage.getItem("login")}/techArmW${window.location.search}`))
         }
     }, [dispatch])
 

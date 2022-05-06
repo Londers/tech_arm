@@ -52,7 +52,6 @@ export const timeFormat = (time: string) => {
         minute: "2-digit",
         second: "2-digit"
     });
-    // console.log(date);
     return dateTimeFormat.format(date);
 }
 
@@ -194,9 +193,15 @@ export const filterTable = (devices: DeviceInfo[], tableRows: TableRow[], filter
             return tableRows.filter(row => row.sv.sv === "")
         case 5:
             // Управление из центра
-            return tableRows.filter(row => row.traffic !== "").filter(row =>
-                Object.values(devices.find(dev => dev.device.id === row.idevice)?.device.StatusCommandDU ?? {}).some(value => value)
-            );
+            return tableRows.filter(row => row.traffic !== '')
+                .filter(row => {
+                    const commands = devices.find(device => device.idevice === row.idevice)?.device.StatusCommandDU
+                    if (commands) {
+                        return commands.IsDUDK1 || commands.IsPK || commands.IsCK || commands.IsNK
+                    } else {
+                        return []
+                    }
+                });
         case 6:
             // Наличие связи
             return tableRows.filter(row => row.sv.sv !== "")
