@@ -21,7 +21,7 @@ export const checkGPS = (GPS: GPS) => {
 
 // Расшифровка типа устройства
 export const switchArrayTypeFromDevice = (model: Model) => {
-    if (model.C12) return "С12"
+    if (model.C12) return "С12УСДК"
     if (model.DKA) return "ДКА"
     if (model.DTA) return "ДТА"
     return "УСДК"
@@ -103,6 +103,10 @@ const mErrorText = new Map<number, string>([
     [50, "Не было данных от сервера в течение интервала обмена  +1 минута"],
     [51, "Был разрыв связи по команде ПСПД"],
     [52, "Модем выдал сообщение об ошибке в процессе обмена"],
+    [53, "Сброс от контроллера Ethernet"],
+    [54, "Самопроизвольный сброс"],
+    [55, "Отказ оборудования"],
+    [56, "Переполнение стека"],
 ])
 
 const ErrorsText = new Map<string, string>([

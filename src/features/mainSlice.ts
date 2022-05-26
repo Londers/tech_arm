@@ -1,4 +1,4 @@
-import {ArmInfoMsg, CrossesMsg, CrossInfo, DevicesMsg, Gprs, GprsChange, GprsMsg} from "../common";
+import {ArmInfoMsg, CrossesMsg, CrossInfo, DevicesMsg, Gprs, GprsMsg} from "../common";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../app/store";
 
@@ -12,7 +12,6 @@ const initialState: ArmInfoMsg = {
 
 const crossesSort = (a: CrossInfo, b: CrossInfo) =>
     (a.area !== b.area) ? (a.area - b.area) : ((a.subarea !== b.subarea) ? (a.subarea - b.subarea) : (a.id - b.id))
-
 
 export const mainSlice = createSlice({
     name: "mapContent",

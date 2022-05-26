@@ -129,7 +129,7 @@ function Bottom(props: { selected: number }) {
                             </Grid>
                             <Grid item xs={2} className="test" style={{display: "inherit"}}>
                                 <Button variant="outlined" style={{width: "70%"}} onClick={handleSfdkSwitch}>
-                                    {device?.StatusCommandDU.IsReqSFDK1 ? "Выкл. СФ" : "Вкл. СФ"}
+                                    {device?.StatusCommandDU.IsReqSFDK1 ? "Выкл. СФДК" : "Вкл. СФДК"}
                                 </Button>
                             </Grid>
                         </Grid>

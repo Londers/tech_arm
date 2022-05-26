@@ -44,7 +44,7 @@ const columns: GridColDef[] = [
     {
         field: "sv",
         headerName: "Св",
-        flex: 1.25,
+        flex: 1.3,
         valueGetter: ((params: GridRenderCellParams<TableRow["sv"]>) => params.value?.sv),
         renderCell: (params: GridRenderCellParams<TableRow["sv"]>) => (
             <div style={{
