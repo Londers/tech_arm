@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import "./GPRSDialog.sass"
 import {useAppDispatch, useAppSelector} from "../app/hooks";
-import {selectGPRS} from "../features/mainSlice";
+import {selectDevices, selectGPRS} from "../features/mainSlice";
 import {Device, GprsChange} from "./index";
 import {wsSendMessage} from "./Middlewares/WebSocketMiddleware";
 
@@ -19,6 +19,7 @@ function GPRSDialog(props: { open: boolean, setOpen: Function, device: Device })
 
     const dispatch = useAppDispatch()
     const gprs = useAppSelector(selectGPRS)
+    const devices = useAppSelector(selectDevices)
 
     const [addressFlag, setAddressFlag] = useState<boolean>(false)
     const [exchangeIntervalFlag, setExchangeIntervalFlag] = useState<boolean>(false)
@@ -71,6 +72,23 @@ function GPRSDialog(props: { open: boolean, setOpen: Function, device: Device })
         newGprs.long = exchangeInterval
         newGprs.type = communicationMode
         dispatch(wsSendMessage({type: "gprs", gprs: newGprs}))
+        setOpen(false)
+    }
+
+
+    const handleMassSubmit = () => {
+        const newGprs = {} as GprsChange
+        newGprs.id = props.device.id
+        newGprs.f0x32 = addressFlag
+        newGprs.f0x33 = exchangeIntervalFlag
+        newGprs.f0x34 = communicationModeFlag
+        newGprs.ip = ip
+        newGprs.port = Number(port)
+        newGprs.long = exchangeInterval
+        newGprs.type = communicationMode
+        devices.forEach(device => {
+             dispatch(wsSendMessage({type: "gprs", gprs: {...newGprs, id: device.idevice}}))
+        })
         setOpen(false)
     }
 
@@ -164,6 +182,7 @@ function GPRSDialog(props: { open: boolean, setOpen: Function, device: Device })
                 </Grid>
             </DialogContent>
             <DialogActions>
+                <Button type="submit" onClick={handleMassSubmit}>Массовая отправка</Button>
                 <Button type="submit" onClick={handleSubmit}>Подтвердить</Button>
                 <Button onClick={handleClose}>Отмена</Button>
             </DialogActions>

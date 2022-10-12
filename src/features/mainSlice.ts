@@ -14,7 +14,7 @@ const crossesSort = (a: CrossInfo, b: CrossInfo) =>
     (a.area !== b.area) ? (a.area - b.area) : ((a.subarea !== b.subarea) ? (a.subarea - b.subarea) : (a.id - b.id))
 
 export const mainSlice = createSlice({
-    name: "mapContent",
+    name: "mainSlice",
     initialState,
     reducers: {
         setInitialData: (state, action: PayloadAction<ArmInfoMsg>) => {

@@ -116,6 +116,20 @@ const columns: GridColDef[] = [
         field: "traffic",
         headerName: "Трафик",
         flex: 1.75,
+        renderCell: (params: GridRenderCellParams<TableRow["traffic"]>) => (
+            <div style={{
+                backgroundColor:
+                    (Number(params.row.traffic.split(".")[0]) >= 100) || Number(params.row.traffic.split("/")[1]?.split(".")[0]) >= 100
+                        ? "red" : "",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
+                {params.value}
+            </div>
+        ),
     },
     {
         field: "place",

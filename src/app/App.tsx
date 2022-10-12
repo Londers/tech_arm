@@ -11,7 +11,8 @@ function App() {
 
     useEffect(() => {
         if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-            dispatch(wsConnect("wss://192.168.115.134:4443/user/Admin/techArmW?Region=1&Area=1&Area=2&Area=3"))
+            // dispatch(wsConnect("wss://192.168.115.134:4443/user/Admin/techArmW?Region=1&Area=1&Area=2&Area=3"))
+            dispatch(wsConnect("wss://192.168.0.101:4443/user/Admin/techArmW?Region=1&Area=1&Area=2&Area=3yarn install"))
         } else {
             dispatch(wsConnect(`wss://${window.location.host}/user/${localStorage.getItem("login")}/techArmW${window.location.search}`))
         }
