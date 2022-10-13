@@ -31,14 +31,15 @@ function GPRSDialog(props: { open: boolean, setOpen: Function, device: Device })
     const [communicationMode, setCommunicationMode] = useState<boolean>(gprs?.send ?? false)
 
     useEffect(() => {
-        setAddressFlag(false)
-        setExchangeIntervalFlag(false)
-        setCommunicationModeFlag(false)
-        setIp(gprs?.ip ?? "")
-        setPort(gprs?.port ?? "")
-        setExchangeInterval(props.device.Status.tobm)
-        setCommunicationMode(gprs?.send ?? false)
-    }, [open])
+            setAddressFlag(false)
+            setExchangeIntervalFlag(false)
+            setCommunicationModeFlag(false)
+            setIp(gprs?.ip ?? "")
+            setPort(gprs?.port ?? "")
+            setExchangeInterval(props.device.Status.tobm)
+            setCommunicationMode(gprs?.send ?? false)
+        }, [open]
+    )
 
     const handleIpChange = (event: ChangeEvent<HTMLInputElement>) => setIp(event.currentTarget.value)
     const handlePortChange = (event: ChangeEvent<HTMLInputElement>) => setPort(event.currentTarget.value)
@@ -87,7 +88,7 @@ function GPRSDialog(props: { open: boolean, setOpen: Function, device: Device })
         newGprs.long = exchangeInterval
         newGprs.type = communicationMode
         devices.forEach(device => {
-             dispatch(wsSendMessage({type: "gprs", gprs: {...newGprs, id: device.idevice}}))
+            dispatch(wsSendMessage({type: "gprs", gprs: {...newGprs, id: device.idevice}}))
         })
         setOpen(false)
     }

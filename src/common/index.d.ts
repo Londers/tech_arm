@@ -92,6 +92,7 @@ export interface Device {
     scon: boolean;
     ltime: string;
     dtime: string;
+    ctime: string;
     techmode: number;
     base: boolean;
     pk: number;

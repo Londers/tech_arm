@@ -1,11 +1,14 @@
-import React, {Fragment, useState} from "react";
+import React, {useState} from "react";
 import {Box, Button, Grid} from "@mui/material";
 import {useAppDispatch, useAppSelector} from "../app/hooks";
 import {selectCrosses, selectCrossesCount, selectDevices, selectDevicesCount} from "./mainSlice";
 import {
     checkError,
-    checkMalfunction, checkTimeDiff, checkVersionDifference,
-    decodeInputErrors, openTab,
+    checkMalfunction,
+    checkTimeDiff,
+    checkVersionDifference,
+    decodeInputErrors,
+    openTab,
     phaseSpellOut,
     switchArrayType,
     switchArrayTypeFromDevice,
@@ -113,7 +116,7 @@ function Bottom(props: { selected: number }) {
                                 </div>
                             </Grid>
                             <Grid item xs className="test" style={{display: "inherit"}}>
-                                {device ? timeFormat(device.ltime) : ""}
+                                {(device && device.ctime) ? timeFormat(device.ctime) : ""}
                             </Grid>
                             <Grid item xs={2} className="test" style={{display: "inherit"}}>
                                 <Button variant="outlined" style={{width: "70%"}} onClick={e => console.log(e)}>
